@@ -1,55 +1,59 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT:
+Version change: N/A (initial version) → 1.0.0
+Modified principles: N/A
+Added sections: All principles and sections based on Phase I specification
+Removed sections: N/A
+Templates requiring updates:
+- .specify/templates/plan-template.md: ✅ updated to align with new principles
+- .specify/templates/spec-template.md: ✅ updated to align with new principles
+- .specify/templates/tasks-template.md: ✅ updated to align with new principles
+- .specify/templates/commands/*.md: ✅ reviewed for consistency
+Follow-up TODOs: None
+-->
+
+# Phase I — In-Memory Python Console Todo Application Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-Driven Foundation
+The purpose of Phase I is to establish a spec-driven foundation for the Evolution of Todo project by building a Python console-based Todo application using AI-generated code only. This phase validates the ability to govern AI agents through specifications, translate product requirements into deterministic system behavior, and establish clean architectural boundaries without cloud or AI complexity. Phase I serves as the non-negotiable base layer for all future phases.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. AI-Only Code Generation
+Claude Code is the only entity allowed to write implementation code. Human involvement is limited to writing and refining specifications and validating behavior via execution. Any behavior not explicitly stated in a spec must not be implemented. All code must be generated via Claude Code, and no manual code writing by humans is permitted.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Specification Authority
+Every feature must have an explicit Markdown specification. No feature may be implemented without an approved spec. No refactoring unless demanded by a new spec. One spec → one implementation unit. Specifications are the single source of truth for the system behavior.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Functional Scope Adherence
+The system must implement exactly the following features: Add Task, Delete Task, Update Task, View Task List, Mark Task as Complete/Incomplete. No additional features are allowed in Phase I. Each task must minimally contain: id (integer, auto-increment, unique), title (string, required), description (string, optional), completed (boolean, default: false). The data model may not be extended without a new spec.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Data & Storage Constraints
+All tasks must be stored in memory only. No file system persistence. No databases. No external APIs. Task data is lost on program exit. All data must be stored in memory only with no persistence mechanisms implemented in Phase I.
 
-### [PRINCIPLE_6_NAME]
+### VI. Architectural Separation
+Clear separation of concerns: User interface (console input/output), Business logic, Data storage. Single Responsibility Principle must be respected. No global mutable state except the in-memory task store. Deterministic behavior for identical inputs. The system must maintain clean architectural boundaries between UI, business logic, and data storage.
 
+## System Architecture Principles
 
-[PRINCIPLE__DESCRIPTION]
+### VII. Console Interaction Contract
+Interaction occurs strictly via terminal/console. Users select actions through numbered menu options. All outputs must be human-readable. Errors must be communicated clearly without stack traces. The system must always return to the main menu after an operation. This ensures predictable user experience through standard console interface.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### VIII. Error Handling Robustness
+Invalid input must not crash the program. Missing task IDs must result in a clear error message. Empty task titles must be rejected. The system must always return to the main menu after an operation. All error conditions must be handled gracefully without program termination.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IX. Evolution Compatibility
+Phase I must remain backward compatible with future phases. Architectural shortcuts that block future persistence, APIs, or AI agents are strictly forbidden. All implementation decisions must consider future extensibility without blocking evolution to subsequent phases.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Governance
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### X. AI Agent Conduct Requirements
+Claude Code must read and obey this Constitution before any implementation. Claude Code must ask for clarification if a spec is ambiguous. Claude Code must never invent features, never optimize beyond the scope of a spec, and never remove existing behavior unless instructed. All implementation must strictly follow the specifications.
+
+### XI. Validation & Testing Philosophy
+Validation is performed through manual execution and console output verification. No automated test frameworks are required in Phase I. Predictable task IDs are mandatory for verification. All functionality must be manually testable through the console interface with clear, human-readable outputs.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This Constitution applies only to Phase I. All future phases require their own constitutions. All implementation work must comply with these principles. Any deviation from these principles invalidates the phase. Amendments to this constitution require explicit approval and must maintain the core spec-driven, AI-only implementation approach.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-04
