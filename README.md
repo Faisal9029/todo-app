@@ -84,3 +84,23 @@ The application will be available at http://localhost:3000. Sign up for an accou
 ## Deployment
 
 For detailed deployment instructions, troubleshooting, and alternative deployment methods, see `DEPLOYMENT_GUIDE.md`.
+
+### Platform-Specific Deployment
+
+#### Railway Deployment
+This monorepo contains two services that should ideally be deployed separately:
+1. **Backend Service**: Deploy from the `phase 2/backend` directory
+2. **Frontend Service**: Deploy from the `phase 2/frontend` directory
+
+#### Heroku Deployment
+Use the provided `app.json` for Heroku deployment, or deploy services separately:
+- Create separate Heroku apps for backend and frontend
+- Use Heroku Postgres addon for database
+
+#### Manual Deployment
+See `DEPLOYMENT_GUIDE.md` for comprehensive manual deployment options.
+
+### Important Notes
+- The application uses external PostgreSQL database (Neon in default config)
+- Ensure CORS settings allow communication between frontend and backend
+- Set appropriate environment variables for production

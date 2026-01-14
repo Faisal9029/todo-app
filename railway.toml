@@ -1,0 +1,13 @@
+# Railway configuration for Todo Application
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "."
+
+[deploy]
+numReplicas = 1
+region = "us-west-1"
+plan = "standard"
+
+# For a monorepo with multiple services, you might need to deploy separately
+# This configuration assumes a single service deployment
