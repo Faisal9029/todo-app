@@ -41,15 +41,11 @@ RUN curl -L https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init
 # Copy backend files
 COPY --from=backend-builder /app ./backend/
 
-# Copy Railway-specific start script
-COPY start.railway.sh .
-RUN chmod +x start.railway.sh
-
 # Expose port (Railway uses the PORT environment variable)
 EXPOSE 8000
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Start the main service (backend)
-CMD ["sh", "-c", "./start.railway.sh"]
+# Start the main service (backend) directly
+CMD ["sh", "-c", "cd /app/backend && python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
