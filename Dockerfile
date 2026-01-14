@@ -14,13 +14,15 @@ RUN apt-get update && apt-get install -y \
 
 # Copy backend requirements and install dependencies
 COPY phase 2/backend/requirements.txt .
-COPY phase 2/backend/alembic.ini .
+COPY phase 2/backend/alembic.ini ./
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source code
 COPY phase 2/backend/src/ ./src/
+
+# Copy alembic directory
 COPY phase 2/backend/alembic/ ./alembic/
 
 # Production stage - focused on backend API for Railway
