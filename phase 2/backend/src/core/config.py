@@ -1,10 +1,12 @@
 from pydantic_settings import SettingsConfigDict, BaseSettings
 from pydantic import field_validator
 import re
+import os
+from pathlib import Path
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(case_sensitive=False, extra='ignore')
+    model_config = SettingsConfigDict(case_sensitive=False, extra='ignore', env_file=".env", env_file_encoding='utf-8')
 
     # Database settings - REQUIRED (no defaults for production security)
     DATABASE_URL: str

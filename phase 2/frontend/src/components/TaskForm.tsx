@@ -15,6 +15,7 @@ export default function TaskForm({ userId, onSubmit, onCancel, initialTask, isEd
   const [title, setTitle] = useState(initialTask?.title || '');
   const [description, setDescription] = useState(initialTask?.description || '');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(initialTask?.priority || 'medium');
+  const [dueDate, setDueDate] = useState<string>(initialTask?.due_date || '');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,7 +42,8 @@ export default function TaskForm({ userId, onSubmit, onCancel, initialTask, isEd
         title: title.trim(),
         description: description.trim(),
         completed: initialTask?.completed || false,
-        priority: priority
+        priority: priority,
+        due_date: dueDate || null
       });
 
       // Clear form if it's a new task
@@ -49,6 +51,7 @@ export default function TaskForm({ userId, onSubmit, onCancel, initialTask, isEd
         setTitle('');
         setDescription('');
         setPriority('medium'); // Reset priority to default
+        setDueDate(''); // Reset due date
       }
     } catch (err) {
       console.error('Error submitting task:', err);
@@ -105,6 +108,20 @@ export default function TaskForm({ userId, onSubmit, onCancel, initialTask, isEd
           <option value="medium">Medium</option>
           <option value="high">High</option>
         </select>
+      </div>
+
+      <div className="mb-4">
+        <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">
+          Due Date (optional)
+        </label>
+        <input
+          type="date"
+          id="dueDate"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          disabled={isSubmitting}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+        />
       </div>
 
       {error && (
