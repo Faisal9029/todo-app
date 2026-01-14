@@ -1,13 +1,24 @@
-# Railway configuration for Todo Application
+# Railway Configuration for Todo Application Backend
+# This configures Railway to build and deploy the backend service
 
 [build]
 builder = "dockerfile"
-dockerfilePath = "."
+dockerfilePath = "Dockerfile"
 
 [deploy]
 numReplicas = 1
 region = "us-west-1"
 plan = "standard"
 
-# For a monorepo with multiple services, you might need to deploy separately
-# This configuration assumes a single service deployment
+# For a complete setup, you might want to deploy frontend separately
+# This configuration focuses on the backend API service
+
+[variables]
+# Database configuration - you should replace with your own database
+DATABASE_URL = { description = "PostgreSQL database connection string", required = true }
+JWT_SECRET_KEY = { description = "Secret key for JWT token signing", required = true, secret = true }
+JWT_ALGORITHM = { description = "Algorithm for JWT token signing", default = "HS256" }
+ACCESS_TOKEN_EXPIRE_MINUTES = { description = "Access token expiration time in minutes", default = "30" }
+NEXT_PUBLIC_API_URL = { description = "Backend API URL for frontend", default = "https://your-app-name-production.up.railway.app" }
+
+# Railway will automatically provide the PORT environment variable
