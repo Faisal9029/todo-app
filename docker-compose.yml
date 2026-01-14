@@ -1,12 +1,13 @@
 version: '3.8'
 
 services:
-  backend:
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.backend
-    container_name: todo-backend
+      dockerfile: Dockerfile
+    container_name: todo-app
     ports:
+      - "3000:3000"
       - "8000:8000"
     env_file:
       - .env
@@ -15,38 +16,13 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    networks:
-      - todo-network
-    restart: unless-stopped
-    # Add a small delay to ensure any initialization is complete
-    command: sh -c "sleep 5 && uvicorn main:app --host 0.0.0.0 --port 8000"
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: todo-frontend
-    ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-      - HOSTNAME=0.0.0.0
-    depends_on:
-      - backend
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "-O", "/dev/null", "http://127.0.0.1:3000"]
+      test: ["CMD", "bash", "-c", "curl -f http://127.0.0.1:8000/health && wget --no-verbose --tries=1 -O /dev/null http://127.0.0.1:3000"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 90s
+      start_period: 120s
     networks:
       - todo-network
     restart: unless-stopped
