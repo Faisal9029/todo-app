@@ -1,39 +1,46 @@
-from src.models.task import Task
-from src.storage.task_repository import TaskRepository
+"""
+Task service for the console todo application.
+Contains business logic for task operations.
+"""
+
 from typing import List, Optional
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from models.task import Task
+from storage.task_repository import TaskRepository
 
 
 class TaskService:
-    """
-    Service layer for task operations.
-    """
+    """Business logic layer for task operations."""
 
-    def __init__(self, task_repository: TaskRepository):
+    def __init__(self, repository: TaskRepository):
         """
-        Initialize the task service with a task repository.
+        Initialize the service with a task repository.
 
         Args:
-            task_repository (TaskRepository): The repository to use for data operations
+            repository: TaskRepository instance to use for data operations
         """
-        self._task_repository = task_repository
+        self.repository = repository
 
-    def add_task(self, title: str, description: str = "") -> Task:
+    def add_task(self, title: str, description: Optional[str] = None) -> Task:
         """
         Add a new task with validation.
 
         Args:
-            title (str): Title of the task (required)
-            description (str): Optional description of the task
+            title: Required title of the task
+            description: Optional description of the task
 
         Returns:
             Task: The newly created task
 
         Raises:
-            ValueError: If the title is empty or invalid
+            ValueError: If title is empty or invalid
         """
-        if not isinstance(title, str) or not title.strip():
-            raise ValueError("Task title must be a non-empty string")
-        return self._task_repository.add_task(title, description)
+        if not title or not title.strip():
+            raise ValueError("Task title is required and cannot be empty")
+
+        return self.repository.add_task(title, description)
 
     def get_all_tasks(self) -> List[Task]:
         """
@@ -42,70 +49,72 @@ class TaskService:
         Returns:
             List[Task]: List of all tasks
         """
-        return self._task_repository.get_all_tasks()
+        return self.repository.get_all_tasks()
 
     def get_task_by_id(self, task_id: int) -> Optional[Task]:
         """
         Get a task by its ID.
 
         Args:
-            task_id (int): ID of the task to retrieve
+            task_id: ID of the task to retrieve
 
         Returns:
-            Optional[Task]: The task if found, None otherwise
+            Task: The task with the given ID, or None if not found
         """
-        return self._task_repository.get_task_by_id(task_id)
+        return self.repository.get_task_by_id(task_id)
 
-    def update_task(self, task_id: int, title: str = None, description: str = None) -> bool:
+    def update_task(self, task_id: int, title: Optional[str] = None, description: Optional[str] = None) -> Optional[Task]:
         """
-        Update a task with validation.
+        Update a task's title and/or description with validation.
 
         Args:
-            task_id (int): ID of the task to update
-            title (str, optional): New title for the task
-            description (str, optional): New description for the task
+            task_id: ID of the task to update
+            title: New title (optional)
+            description: New description (optional)
 
         Returns:
-            bool: True if task was updated, False if task was not found
+            Task: Updated task if found, None if task doesn't exist
+
+        Raises:
+            ValueError: If new title is empty
         """
-        # Validate title if provided
-        if title is not None:
-            if not isinstance(title, str) or not title.strip():
-                raise ValueError("Task title must be a non-empty string")
-        return self._task_repository.update_task(task_id, title, description)
+        if title is not None and not title.strip():
+            raise ValueError("Task title cannot be empty")
 
-    def delete_task(self, task_id: int) -> bool:
-        """
-        Delete a task.
+        return self.repository.update_task(task_id, title, description)
 
-        Args:
-            task_id (int): ID of the task to delete
-
-        Returns:
-            bool: True if task was deleted, False if task was not found
-        """
-        return self._task_repository.delete_task(task_id)
-
-    def toggle_task_completion(self, task_id: int) -> bool:
+    def toggle_task_completion(self, task_id: int) -> Optional[Task]:
         """
         Toggle the completion status of a task.
 
         Args:
-            task_id (int): ID of the task to toggle
+            task_id: ID of the task to toggle
 
         Returns:
-            bool: True if task status was toggled, False if task was not found
+            Task: Updated task if found, None if task doesn't exist
         """
-        return self._task_repository.toggle_completion(task_id)
+        return self.repository.toggle_completion(task_id)
+
+    def delete_task(self, task_id: int) -> bool:
+        """
+        Delete a task by its ID.
+
+        Args:
+            task_id: ID of the task to delete
+
+        Returns:
+            bool: True if task was deleted, False if task doesn't exist
+        """
+        return self.repository.delete_task(task_id)
 
     def validate_task_id(self, task_id: int) -> bool:
         """
-        Validate if a task ID is valid (exists in the repository).
+        Validate if a task ID exists.
 
         Args:
-            task_id (int): ID to validate
+            task_id: ID to validate
 
         Returns:
-            bool: True if the task exists, False otherwise
+            bool: True if task exists, False otherwise
         """
-        return self.get_task_by_id(task_id) is not None
+        return self.repository.get_task_by_id(task_id) is not None

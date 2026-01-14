@@ -1,62 +1,42 @@
-class Task:
-    """
-    Represents a single todo item with id, title, description, and completion status.
-    """
+"""
+Task model for the console todo application.
+Represents a single todo item with id, title, description, and completion status.
+"""
 
-    def __init__(self, id, title, description="", completed=False):
+from typing import Optional
+
+
+class Task:
+    """Represents a single todo item."""
+
+    def __init__(self, id: int, title: str, description: Optional[str] = None, completed: bool = False):
         """
         Initialize a Task instance.
 
         Args:
-            id (int): Unique identifier for the task
-            title (str): Title of the task (required)
-            description (str): Optional description of the task
-            completed (bool): Completion status of the task (default: False)
+            id: Unique identifier for the task (auto-incremented)
+            title: Required title of the task (non-empty string)
+            description: Optional description of the task
+            completed: Boolean indicating if task is completed (default: False)
         """
-        if not isinstance(id, int) or id <= 0:
-            raise ValueError("ID must be a positive integer")
-
-        if not isinstance(title, str) or not title.strip():
-            raise ValueError("Title must be a non-empty string")
-
-        if not isinstance(completed, bool):
-            raise ValueError("Completed must be a boolean value")
+        if not title or not title.strip():
+            raise ValueError("Title is required and cannot be empty")
 
         self.id = id
         self.title = title.strip()
-        self.description = description.strip() if description else ""
+        self.description = description.strip() if description else None
         self.completed = completed
 
-    def __str__(self):
-        """
-        String representation of the task for display purposes.
-        """
+    def __repr__(self):
+        """String representation of the task."""
         status = "[x]" if self.completed else "[ ]"
-        return f"{self.id}. {status} {self.title}"
+        return f"Task(id={self.id}, title='{self.title}', completed={self.completed})"
 
     def to_dict(self):
-        """
-        Convert the task to a dictionary representation.
-        """
+        """Convert task to dictionary representation."""
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
             "completed": self.completed
         }
-
-    def update(self, title=None, description=None):
-        """
-        Update the task's title and/or description.
-
-        Args:
-            title (str, optional): New title for the task
-            description (str, optional): New description for the task
-        """
-        if title is not None:
-            if not isinstance(title, str) or not title.strip():
-                raise ValueError("Title must be a non-empty string")
-            self.title = title.strip()
-
-        if description is not None:
-            self.description = description.strip() if description else ""
