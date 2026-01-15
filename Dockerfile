@@ -43,6 +43,9 @@ COPY --from=backend-builder /usr/local/bin /usr/local/bin
 # Copy backend files from the builder stage - copy the entire backend directory
 COPY --from=backend-builder /app/phase-2/backend ./backend/
 
+# Set PYTHONPATH so Python can find the modules in src/
+ENV PYTHONPATH=/app/backend/src:$PYTHONPATH
+
 # Expose port (Railway uses the PORT environment variable)
 EXPOSE 8000
 
