@@ -12,18 +12,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Copy backend requirements and install dependencies
-COPY ["phase 2/backend/requirements.txt", "."]
-COPY ["phase 2/backend/alembic.ini", "./"]
+# Copy the entire phase-2 directory first to ensure all paths are available
+COPY ["phase-2/", "./phase-2/"]
+
+WORKDIR /app/phase-2/backend
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
-
-# Copy backend source code
-COPY ["phase 2/backend/src/", "./src/"]
-
-# Copy alembic directory
-COPY ["phase 2/backend/alembic/", "./alembic/"]
 
 # Production stage - focused on backend API for Railway
 FROM python:3.11-slim
@@ -37,11 +32,11 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean
 
 # Install dumb-init for proper signal handling
-RUN curl -L https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/bin/dumb-init && \
+RUN curl -L https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 > /usr/bin/dumb-init && \
     chmod +x /usr/bin/dumb-init
 
-# Copy backend files
-COPY --from=backend-builder /app ./backend/
+# Copy backend files from the builder stage - copy the entire backend directory
+COPY --from=backend-builder /app/phase-2/backend ./backend/
 
 # Expose port (Railway uses the PORT environment variable)
 EXPOSE 8000
