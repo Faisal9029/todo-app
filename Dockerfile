@@ -17,6 +17,7 @@ COPY ["phase-2/", "./phase-2/"]
 
 WORKDIR /app/phase-2/backend
 
+# Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -34,6 +35,10 @@ RUN apt-get update && apt-get install -y \
 # Install dumb-init for proper signal handling
 RUN curl -L https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 > /usr/bin/dumb-init && \
     chmod +x /usr/bin/dumb-init
+
+# Copy installed Python packages from the builder stage
+COPY --from=backend-builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=backend-builder /usr/local/bin /usr/local/bin
 
 # Copy backend files from the builder stage - copy the entire backend directory
 COPY --from=backend-builder /app/phase-2/backend ./backend/
