@@ -51,7 +51,15 @@ app = FastAPI(
 # Add CORS middleware to allow requests from the frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"],  # Allow frontend origins
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "https://frontend-xi-two-84.vercel.app",  # Production Vercel frontend
+        "https://frontend-7azn7deae-faisal9029s-projects.vercel.app",  # Production Vercel frontend
+        "https://*.vercel.app"  # Wildcard for Vercel previews and aliases
+    ],  # Allow frontend origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
