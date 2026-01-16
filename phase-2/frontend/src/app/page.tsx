@@ -9,7 +9,14 @@ export default function Home() {
   useEffect(() => {
     // Check backend health
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    fetch(`${backendUrl}/health`)
+
+    // Normalize URL to prevent double slashes
+    let normalizedUrl = backendUrl;
+    if (normalizedUrl.endsWith('/')) {
+      normalizedUrl = normalizedUrl.slice(0, -1);
+    }
+
+    fetch(`${normalizedUrl}/health`)
       .then(res => {
         if (res.ok) {
           setBackendStatus('online')
@@ -277,14 +284,21 @@ export default function Home() {
             >
               Create Account
             </Link>
-            <Link
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/docs`}
+            <a
+              href={(() => {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+                let normalizedUrl = baseUrl;
+                if (normalizedUrl.endsWith('/')) {
+                  normalizedUrl = normalizedUrl.slice(0, -1);
+                }
+                return `${normalizedUrl}/docs`;
+              })()}
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 border border-indigo-300 text-base font-medium rounded-md text-white hover:bg-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               📚 API Documentation
-            </Link>
+            </a>
           </div>
         </div>
       </div>
