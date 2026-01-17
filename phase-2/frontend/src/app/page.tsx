@@ -2,16 +2,14 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { api } from '../../lib/apiHelper'
 
 export default function Home() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking')
 
   useEffect(() => {
-    // Check backend health with new URL construction method
-    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-
-    // Use new URL construction to prevent double slashes
-    const healthUrl = new URL('/health', backendUrl).toString();
+    // Check backend health using standardized API helper
+    const healthUrl = api('/health');
 
     fetch(healthUrl)
       .then(res => {
@@ -284,9 +282,8 @@ export default function Home() {
             </Link>
             <a
               href={(() => {
-                const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-                // Use new URL construction to prevent double slashes
-                return new URL('/docs', baseUrl).toString();
+                // Use standardized API helper
+                return api('/docs');
               })()}
               target="_blank"
               rel="noopener noreferrer"
