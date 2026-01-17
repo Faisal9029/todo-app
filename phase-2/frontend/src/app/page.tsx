@@ -7,17 +7,11 @@ export default function Home() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking')
 
   useEffect(() => {
-    // Check backend health with robust URL normalization
-    let backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Check backend health with new URL construction method
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
-    // Trim and normalize the base URL
-    backendUrl = backendUrl.trim();
-    if (backendUrl.endsWith('/')) {
-      backendUrl = backendUrl.slice(0, -1);
-    }
-
-    // Construct the health endpoint URL
-    const healthUrl = `${backendUrl}/health`;
+    // Use new URL construction to prevent double slashes
+    const healthUrl = new URL('/health', backendUrl).toString();
 
     fetch(healthUrl)
       .then(res => {
@@ -290,13 +284,9 @@ export default function Home() {
             </Link>
             <a
               href={(() => {
-                let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-                // Trim and normalize the base URL
-                baseUrl = baseUrl.trim();
-                if (baseUrl.endsWith('/')) {
-                  baseUrl = baseUrl.slice(0, -1);
-                }
-                return `${baseUrl}/docs`;
+                const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+                // Use new URL construction to prevent double slashes
+                return new URL('/docs', baseUrl).toString();
               })()}
               target="_blank"
               rel="noopener noreferrer"
