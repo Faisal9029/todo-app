@@ -1,7 +1,7 @@
 // frontend/src/lib/api.ts
 import { Task, TaskListResponse, ApiResponse, TokenResponse } from '../types';
 import { authClient } from './auth'; // Our auth client
-import { joinUrl } from '../utils/url';
+import { api } from './apiHelper';
 
 interface RequestOptions extends RequestInit {
   retries?: number;
@@ -18,8 +18,8 @@ class ApiClient {
     // Default to 1 retry for network failures
     const retries = options.retries ?? 1;
 
-    // Use new URL construction method to prevent double slashes
-    const url = new URL(endpoint, this.baseUrl).toString();
+    // Use new sanitized URL construction method to prevent double slashes
+    const url = api(endpoint);
 
     const config: RequestOptions = {
       headers: {
