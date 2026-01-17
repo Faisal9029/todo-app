@@ -7,16 +7,19 @@ export default function Home() {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking')
 
   useEffect(() => {
-    // Check backend health
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Check backend health with robust URL normalization
+    let backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-    // Normalize URL to prevent double slashes
-    let normalizedUrl = backendUrl;
-    if (normalizedUrl.endsWith('/')) {
-      normalizedUrl = normalizedUrl.slice(0, -1);
+    // Trim and normalize the base URL
+    backendUrl = backendUrl.trim();
+    if (backendUrl.endsWith('/')) {
+      backendUrl = backendUrl.slice(0, -1);
     }
 
-    fetch(`${normalizedUrl}/health`)
+    // Construct the health endpoint URL
+    const healthUrl = `${backendUrl}/health`;
+
+    fetch(healthUrl)
       .then(res => {
         if (res.ok) {
           setBackendStatus('online')
@@ -24,7 +27,8 @@ export default function Home() {
           setBackendStatus('offline')
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Health check failed:', error);
         setBackendStatus('offline')
       })
   }, [])
@@ -286,12 +290,13 @@ export default function Home() {
             </Link>
             <a
               href={(() => {
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-                let normalizedUrl = baseUrl;
-                if (normalizedUrl.endsWith('/')) {
-                  normalizedUrl = normalizedUrl.slice(0, -1);
+                let baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+                // Trim and normalize the base URL
+                baseUrl = baseUrl.trim();
+                if (baseUrl.endsWith('/')) {
+                  baseUrl = baseUrl.slice(0, -1);
                 }
-                return `${normalizedUrl}/docs`;
+                return `${baseUrl}/docs`;
               })()}
               target="_blank"
               rel="noopener noreferrer"
