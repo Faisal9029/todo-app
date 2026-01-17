@@ -58,11 +58,12 @@ app.add_middleware(
         "http://127.0.0.1:3001",
         "https://frontend-xi-two-84.vercel.app",  # Production Vercel frontend
         "https://frontend-7azn7deae-faisal9029s-projects.vercel.app",  # Production Vercel frontend
-        "https://*.vercel.app"  # Wildcard for Vercel previews and aliases
+        "https://frontend-4an6nkk8q-faisal9029s-projects.vercel.app",  # Production Vercel frontend
+        "https://*.vercel.app",  # Wildcard for Vercel previews and aliases
     ],  # Allow frontend origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Initialize error handlers
