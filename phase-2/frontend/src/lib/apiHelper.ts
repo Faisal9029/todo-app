@@ -1,4 +1,5 @@
 export const api = (path: string) => {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/g, "");
-  return new URL(path.startsWith("/") ? path : `/${path}`, base).toString();
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/+$/g, "") || 'http://localhost:8000';
+  const normalizedPath = path.startsWith("/") ? path.substring(1) : path; // Remove leading slash if exists
+  return `${base}/${normalizedPath}`;
 };
