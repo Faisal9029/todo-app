@@ -1,6 +1,7 @@
 // frontend/src/lib/api.ts
-import { Task, TaskListResponse, ApiResponse, TokenResponse } from '../types';
-import { authClient } from './auth'; // Our auth client
+
+import { Task, TaskListResponse } from '../types';
+import { authClient } from './auth';
 import { api } from './apiHelper';
 
 interface RequestOptions extends RequestInit {
@@ -8,148 +9,169 @@ interface RequestOptions extends RequestInit {
 }
 
 class ApiClient {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
-  }
-
-  private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    // Default to 1 retry for network failures
+  /**
+   * Core request handler
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestOptions = {}
+  ): Promise<T> {
     const retries = options.retries ?? 1;
-
-    // Use new sanitized URL construction method to prevent double slashes
     const url = api(endpoint);
 
     const config: RequestOptions = {
+      ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(options.headers || {}),
       },
-      ...options,
     };
 
-    // Add JWT token to headers if available
+    // Attach JWT if present
     const token = authClient.getToken();
     if (token) {
       config.headers = {
         ...config.headers,
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       };
     }
 
-    let lastError: Error | null = null;
+    let lastError: unknown;
 
-    // Retry mechanism for network failures
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const response = await fetch(url, config);
 
-        // Handle different status codes
+        // 🔐 Unauthorized
         if (response.status === 401) {
-          // Token might be expired, redirect to login
           authClient.removeToken();
           window.location.href = '/login';
-          throw new Error('Unauthorized. Please log in again.');
+          throw new Error('Unauthorized – session expired');
         }
 
+        // 🚫 Not Found
         if (response.status === 404) {
-          throw new Error(`API endpoint not found. Please check the URL: ${url}`);
+          throw new Error(`API endpoint not found: ${url}`);
         }
 
+        // ❌ Other HTTP errors
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.detail || `HTTP error! status: ${response.status} - ${url}`);
+          throw new Error(
+            errorData.detail || `HTTP ${response.status} – ${url}`
+          );
         }
 
-        // Some endpoints (like DELETE) may not return JSON
+        // 🗑️ No content
         if (response.status === 204) {
           return {} as T;
         }
 
-        return await response.json();
+        return (await response.json()) as T;
       } catch (error) {
-        lastError = error as Error;
+        lastError = error;
 
-        // Type guard to check if error is an Error object
-        const isErrorObject = error instanceof Object && 'message' in error;
-        const errorMessage = isErrorObject ? (error as Error).message : String(error);
+        const isNetworkError =
+          error instanceof TypeError ||
+          (error instanceof Error && error.message.includes('fetch'));
 
-        // Only retry on network errors, not HTTP errors
-        if (attempt < retries && (error instanceof TypeError || errorMessage.includes('fetch'))) {
-          // Exponential backoff: wait 1s, 2s, 4s, etc.
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        if (attempt < retries && isNetworkError) {
+          // ⏳ exponential backoff
+          await new Promise(res =>
+            setTimeout(res, Math.pow(2, attempt) * 1000)
+          );
           continue;
         }
 
-        // If it's not a network error or we've exhausted retries, rethrow
         throw error;
       }
     }
 
-    // This should never be reached, but TypeScript requires it
-    throw lastError!;
+    throw lastError;
   }
 
-  // Task endpoints - these need to include the user ID in the path as expected by the backend
+  /* =======================
+     TASK ENDPOINTS
+     ======================= */
+
   async getTasks(userId: string): Promise<Task[]> {
-    const response = await this.request<TaskListResponse>(`/api/${userId}/tasks`);
-    // Backend returns { tasks: Task[], total: number }, extract the tasks array
-    return response.tasks || [];
+    const res = await this.request<TaskListResponse>(
+      `api/${userId}/tasks`
+    );
+    return res.tasks ?? [];
   }
 
-  async createTask(userId: string, taskData: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<Task> {
-    return this.request(`/api/${userId}/tasks`, {
+  async createTask(
+    userId: string,
+    taskData: Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>
+  ): Promise<Task> {
+    return this.request<Task>(`api/${userId}/tasks`, {
       method: 'POST',
       body: JSON.stringify(taskData),
     });
   }
 
   async getTask(userId: string, taskId: number): Promise<Task> {
-    return this.request(`/api/${userId}/tasks/${taskId}`);
+    return this.request<Task>(`api/${userId}/tasks/${taskId}`);
   }
 
-  async updateTask(userId: string, taskId: number, taskData: Partial<Task>): Promise<Task> {
-    return this.request(`/api/${userId}/tasks/${taskId}`, {
+  async updateTask(
+    userId: string,
+    taskId: number,
+    taskData: Partial<Task>
+  ): Promise<Task> {
+    return this.request<Task>(`api/${userId}/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(taskData),
     });
   }
 
   async deleteTask(userId: string, taskId: number): Promise<void> {
-    await this.request(`/api/${userId}/tasks/${taskId}`, {
+    await this.request<void>(`api/${userId}/tasks/${taskId}`, {
       method: 'DELETE',
     });
-    // DELETE returns a success message, not a Task object
-    return;
   }
 
-  async toggleTaskCompletion(userId: string, taskId: number, completed: boolean): Promise<Task> {
-    return this.request(`/api/${userId}/tasks/${taskId}/complete?completed=${completed}`, {
-      method: 'PATCH',
-    });
+  async toggleTaskCompletion(
+    userId: string,
+    taskId: number,
+    completed: boolean
+  ): Promise<Task> {
+    return this.request<Task>(
+      `api/${userId}/tasks/${taskId}/complete?completed=${completed}`,
+      { method: 'PATCH' }
+    );
   }
 
-  // Additional endpoints for the Linear-inspired UI
+  /* =======================
+     UI / PREFERENCES
+     ======================= */
+
   async getThemePreferences(userId: string): Promise<any> {
-    return this.request(`/api/${userId}/theme`);
+    return this.request(`api/${userId}/theme`);
   }
 
-  async updateThemePreferences(userId: string, themeData: any): Promise<any> {
-    return this.request(`/api/${userId}/theme`, {
+  async updateThemePreferences(
+    userId: string,
+    data: any
+  ): Promise<any> {
+    return this.request(`api/${userId}/theme`, {
       method: 'PUT',
-      body: JSON.stringify(themeData),
+      body: JSON.stringify(data),
     });
   }
 
   async getUIPreferences(userId: string): Promise<any> {
-    return this.request(`/api/${userId}/ui-preferences`);
+    return this.request(`api/${userId}/ui-preferences`);
   }
 
-  async updateUIPreferences(userId: string, preferences: any): Promise<any> {
-    return this.request(`/api/${userId}/ui-preferences`, {
+  async updateUIPreferences(
+    userId: string,
+    data: any
+  ): Promise<any> {
+    return this.request(`api/${userId}/ui-preferences`, {
       method: 'PUT',
-      body: JSON.stringify(preferences),
+      body: JSON.stringify(data),
     });
   }
 }
