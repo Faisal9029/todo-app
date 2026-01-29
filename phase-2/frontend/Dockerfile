@@ -18,4 +18,4 @@ RUN npm run build
 EXPOSE 3000
 
 # Start the application
-CMD ["sh", "-c", "cd /app && node server.js"]
+CMD ["npm", "start"]
