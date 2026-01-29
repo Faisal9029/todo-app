@@ -15,16 +15,16 @@ export const api = (path: string): string => {
     throw new Error("❌ NEXT_PUBLIC_API_BASE_URL is not defined");
   }
 
-  // Clean base URL
-  const base = rawBase
+  // Clean base URL and path, then join with exactly one slash
+  const cleanBase = rawBase
     .trim()
-    .replace(/\n/g, "")     // remove newline
-    .replace(/\/+$/g, "");  // remove trailing slashes
+    .replace(/\n/g, "")
+    .replace(/\/+$/, "");   // remove all trailing slashes
 
-  // Clean path
   const cleanPath = path
     .trim()
-    .replace(/^\/+/g, "");  // remove leading slashes
+    .replace(/^\/+/, "");   // remove all leading slashes
 
-  return `${base}/${cleanPath}`;
+  // Combine base and path with exactly one slash between them
+  return `${cleanBase}/${cleanPath}`;
 };
