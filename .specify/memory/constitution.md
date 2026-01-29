@@ -1,59 +1,150 @@
 <!-- SYNC IMPACT REPORT:
-Version change: N/A (initial version) → 1.0.0
-Modified principles: N/A
-Added sections: All principles and sections based on Phase I specification
-Removed sections: N/A
+Version change: 1.0.0 → 2.0.0
+Modified principles: All updated for Phase II web full-stack implementation
+Added sections: Frontend (Next.js), Backend (FastAPI), Database & SQLModel, REST API, Authentication/JWT, Docker Deployment, Monorepo Navigation, Debugging, Project Review
+Removed sections: Phase I in-memory-only storage rules
 Templates requiring updates:
-- .specify/templates/plan-template.md: ✅ updated to align with new principles
-- .specify/templates/spec-template.md: ✅ updated to align with new principles
-- .specify/templates/tasks-template.md: ✅ updated to align with new principles
-- .specify/templates/commands/*.md: ✅ reviewed for consistency
+- .specify/templates/plan-template.md: ✅ updated to align with Phase II principles
+- .specify/templates/spec-template.md: ✅ updated to align with Phase II principles
+- .specify/templates/tasks-template.md: ✅ updated to reflect new skill-driven tasks
+- .specify/templates/commands/*.md: ✅ reviewed for Phase II compliance
 Follow-up TODOs: None
 -->
 
-# Phase I — In-Memory Python Console Todo Application Constitution
+# Phase II — Full-Stack Web Todo Application Constitution
 
 ## Core Principles
 
 ### I. Spec-Driven Foundation
-The purpose of Phase I is to establish a spec-driven foundation for the Evolution of Todo project by building a Python console-based Todo application using AI-generated code only. This phase validates the ability to govern AI agents through specifications, translate product requirements into deterministic system behavior, and establish clean architectural boundaries without cloud or AI complexity. Phase I serves as the non-negotiable base layer for all future phases.
+Phase II extends Phase I by implementing a multi-user full-stack web application. All features MUST be defined in explicit Markdown specifications. The agent (Claude Code) MUST follow specs precisely. Human code writing is prohibited except for specification creation and validation.
 
-### II. AI-Only Code Generation
-Claude Code is the only entity allowed to write implementation code. Human involvement is limited to writing and refining specifications and validating behavior via execution. Any behavior not explicitly stated in a spec must not be implemented. All code must be generated via Claude Code, and no manual code writing by humans is permitted.
+### II. AI-Only Implementation
+Claude Code is the sole code author. All backend, frontend, database, and API implementations MUST be generated through Claude Code. Manual implementation or changes outside spec are forbidden.
 
-### III. Specification Authority
-Every feature must have an explicit Markdown specification. No feature may be implemented without an approved spec. No refactoring unless demanded by a new spec. One spec → one implementation unit. Specifications are the single source of truth for the system behavior.
+### III. Skill Governance
+Phase II introduces the following skills which MUST be used by Claude Code:
 
-### IV. Functional Scope Adherence
-The system must implement exactly the following features: Add Task, Delete Task, Update Task, View Task List, Mark Task as Complete/Incomplete. No additional features are allowed in Phase I. Each task must minimally contain: id (integer, auto-increment, unique), title (string, required), description (string, optional), completed (boolean, default: false). The data model may not be extended without a new spec.
+1. Spec-Driven Development
+2. Claude Code Execution
+3. Next.js App Router Frontend
+4. FastAPI Backend
+5. Authentication & JWT
+6. Database & SQLModel
+7. REST API Design
+8. Monorepo Navigation
+9. Debugging & Error Analysis
+10. Project Review & Compliance
 
-### V. Data & Storage Constraints
-All tasks must be stored in memory only. No file system persistence. No databases. No external APIs. Task data is lost on program exit. All data must be stored in memory only with no persistence mechanisms implemented in Phase I.
+Each skill defines explicit tasks, folder references, and rules. Every task MUST reference its spec file (`@specs/...`) for context.
 
-### VI. Architectural Separation
-Clear separation of concerns: User interface (console input/output), Business logic, Data storage. Single Responsibility Principle must be respected. No global mutable state except the in-memory task store. Deterministic behavior for identical inputs. The system must maintain clean architectural boundaries between UI, business logic, and data storage.
+### IV. Feature Scope Adherence
+Phase II features MUST include:
+- Task CRUD operations
+- User signup/signin authentication
+- Task filtering, sorting, and completion toggle
+- Persistent data storage in Neon PostgreSQL
+- Responsive frontend pages with Next.js + Tailwind CSS
+- API endpoints implemented via FastAPI
+
+No features outside these specifications MAY be implemented in Phase II.
+
+### V. Architectural Separation
+Strict separation of concerns MUST be maintained:
+
+- **Frontend:** Next.js App Router pages and components, Tailwind styling
+- **Backend:** FastAPI routes, business logic, Pydantic/SQLModel models
+- **Database:** Neon PostgreSQL, SQLModel ORM
+- **Authentication:** JWT middleware for user isolation
+- **Spec-Kit Plus:** Provides authoritative feature definitions
+
+All layers MUST communicate via clearly defined APIs. Direct cross-layer code is prohibited.
+
+---
 
 ## System Architecture Principles
 
-### VII. Console Interaction Contract
-Interaction occurs strictly via terminal/console. Users select actions through numbered menu options. All outputs must be human-readable. Errors must be communicated clearly without stack traces. The system must always return to the main menu after an operation. This ensures predictable user experience through standard console interface.
+### VI. Frontend Interaction Contract
+Users MUST interact through responsive web UI only. Server components MUST be used by default. Client components ONLY when interactivity is required. API calls MUST include JWT token in headers. Errors MUST be clearly displayed.
 
-### VIII. Error Handling Robustness
-Invalid input must not crash the program. Missing task IDs must result in a clear error message. Empty task titles must be rejected. The system must always return to the main menu after an operation. All error conditions must be handled gracefully without program termination.
+### VII. Backend API Contract
+All endpoints MUST:
+- Validate requests using Pydantic models
+- Return structured JSON responses
+- Enforce user-specific filtering via JWT
+- Return appropriate HTTP status codes
 
-### IX. Evolution Compatibility
-Phase I must remain backward compatible with future phases. Architectural shortcuts that block future persistence, APIs, or AI agents are strictly forbidden. All implementation decisions must consider future extensibility without blocking evolution to subsequent phases.
+Endpoints MUST conform to the specification:
+- GET /api/{user_id}/tasks
+- POST /api/{user_id}/tasks
+- PUT /api/{user_id}/tasks/{id}
+- DELETE /api/{user_id}/tasks/{id}
+- PATCH /api/{user_id}/tasks/{id}/complete
 
-## Development Governance
+### VIII. Database & Persistence
+- SQLModel MUST be used for all database models and queries.
+- Neon PostgreSQL MUST be used for persistent storage.
+- Foreign key relationships (user ↔ tasks) MUST be enforced.
+- Indexes MUST be added for performance where specified.
 
-### X. AI Agent Conduct Requirements
-Claude Code must read and obey this Constitution before any implementation. Claude Code must ask for clarification if a spec is ambiguous. Claude Code must never invent features, never optimize beyond the scope of a spec, and never remove existing behavior unless instructed. All implementation must strictly follow the specifications.
+No other database or in-memory storage MAY be used.
 
-### XI. Validation & Testing Philosophy
-Validation is performed through manual execution and console output verification. No automated test frameworks are required in Phase I. Predictable task IDs are mandatory for verification. All functionality must be manually testable through the console interface with clear, human-readable outputs.
+### IX. Authentication & Security
+- Better Auth MUST issue JWT tokens for login.
+- Backend MUST validate JWT using `BETTER_AUTH_SECRET`.
+- All requests without valid token MUST return 401 Unauthorized.
+- Each user MUST only access their own tasks.
+- Token expiration MUST be enforced (e.g., 7 days).
+
+### X. Monorepo Navigation
+- The project MUST maintain a monorepo structure:
+  - /frontend → Next.js app
+  - /backend → FastAPI app
+  - /specs → specifications
+  - /.spec-kit → configuration
+- CLAUDE.md files MUST exist for root, frontend, and backend.
+- Layer references MUST follow `@specs/...` convention.
+
+### XI. Debugging & Error Analysis
+Claude Code MUST detect, report, and fix errors across frontend, backend, and database layers.
+- All fixes MUST comply with spec.
+- Errors MUST be logged, reported, and validated through testing.
+
+### XII. Project Review & Compliance
+Before marking Phase II complete:
+- All features MUST be implemented according to specs.
+- Endpoints, frontend pages, and DB models MUST match spec.
+- Authentication MUST be verified.
+- Compliance report MUST be documented.
+
+---
+
+## Deployment Principles
+
+### XIII. Environment Variables
+- `NEXT_PUBLIC_API_BASE_URL`
+- `DATABASE_URL`
+- `BETTER_AUTH_SECRET`
+
+### XIV. Docker & Service Rules
+- Services: frontend (3000), backend (8000), db (5432)
+- Docker Compose MUST define `depends_on` for correct startup order
+- Persistent data MUST survive container restarts
+
+### XV. Build & Run Commands
+- Frontend: `npm run build && npm run start`
+- Backend: `uvicorn main:app --host 0.0.0.0 --port 8000`
+- Docker: `docker-compose up --build`
+
+---
 
 ## Governance
 
-This Constitution applies only to Phase I. All future phases require their own constitutions. All implementation work must comply with these principles. Any deviation from these principles invalidates the phase. Amendments to this constitution require explicit approval and must maintain the core spec-driven, AI-only implementation approach.
+This Constitution applies ONLY to Phase II.
+- Version: 2.0.0
+- Ratified: 2026-01-26
+- Last Amended: 2026-01-26
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-04 | **Last Amended**: 2026-01-04
+**Amendments:**
+- Changes MUST maintain spec-driven, skill-enforced, AI-only implementation.
+- Any deviation MUST be explicitly approved.
+- Future phases require their own separate constitutions.
